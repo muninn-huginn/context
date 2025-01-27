@@ -106,6 +106,164 @@
         text-align: center;
         margin-bottom: 3rem;
       }
+
+      .visualization {
+        width: 100%;
+        height: 400px;
+        margin: 2rem 0;
+        border: 1px solid #222;
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .visualization svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .node {
+        fill: #fff;
+        stroke: #222;
+        stroke-width: 2px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .node:hover {
+        fill: #f0f0f0;
+      }
+
+      .link {
+        stroke: #666;
+        stroke-width: 1px;
+      }
+
+      .context-pulse {
+        fill: none;
+        stroke: #222;
+        stroke-width: 2px;
+        opacity: 0;
+      }
+
+      .controls {
+        text-align: center;
+        margin: 1rem 0;
+      }
+
+      button {
+        padding: 0.5rem 1rem;
+        margin: 0 0.5rem;
+        font-family: 'Courier New', monospace;
+        background: #fff;
+        border: 1px solid #222;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #f0f0f0;
+      }
+
+      .variables-control {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        border: 1px solid #222;
+        border-radius: 4px;
+      }
+
+      .variable-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .variable-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .variable-value {
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      input[type="range"] {
+        width: 150px;
+      }
+
+      .formula-display {
+        font-family: monospace;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: #f8f8f8;
+        border-radius: 4px;
+      }
+
+      /* Add styles for different node types */
+      .node-human {
+        fill: #e3f2fd;
+        stroke: #1976d2;
+      }
+
+      .node-ai {
+        fill: #f3e5f5;
+        stroke: #7b1fa2;
+      }
+
+      .node-context {
+        fill: #e8f5e9;
+        stroke: #388e3c;
+      }
+
+      .node-label {
+        font-size: 12px;
+        text-anchor: middle;
+        pointer-events: none;
+      }
+
+      .link-primary {
+        stroke: #1976d2;
+        stroke-width: 2px;
+      }
+
+      .link-secondary {
+        stroke: #666;
+        stroke-width: 1px;
+        stroke-dasharray: 4;
+      }
+
+      .legend {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: white;
+        padding: 10px;
+        border: 1px solid #222;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        border: 2px solid;
+        border-radius: 50%;
+      }
     </style>
   </head>
   <body>
@@ -141,6 +299,65 @@
         β is the collaboration multiplier<br>
         α is the network effect coefficient<br>
         H_i represents each human's unique contribution and engagement
+      </div>
+
+      <h3>Interactive Context Flow Demonstration</h3>
+      <p>Click on nodes to initiate context flow and observe how it spreads through the network. Add more participants to see how the network effect amplifies context distribution.</p>
+      
+      <div class="controls">
+        <button onclick="addNode()">Add Participant</button>
+        <button onclick="resetVisualization()">Reset</button>
+      </div>
+
+      <div class="variables-control">
+        <div class="variable-group">
+          <div class="variable-label">
+            <label for="contextQuality">Context Quality (C):</label>
+            <span class="variable-value" id="cValue">0.7</span>
+          </div>
+          <input type="range" id="contextQuality" min="0" max="1" step="0.1" value="0.7" 
+            onchange="updateVariable('c', this.value)">
+        </div>
+        
+        <div class="variable-group">
+          <div class="variable-label">
+            <label for="distribution">Distribution Efficiency (D):</label>
+            <span class="variable-value" id="dValue">0.5</span>
+          </div>
+          <input type="range" id="distribution" min="0" max="1" step="0.1" value="0.5"
+            onchange="updateVariable('d', this.value)">
+        </div>
+        
+        <div class="variable-group">
+          <div class="variable-label">
+            <label for="human">Human Interaction (H):</label>
+            <span class="variable-value" id="hValue">0.6</span>
+          </div>
+          <input type="range" id="human" min="0" max="1" step="0.1" value="0.6"
+            onchange="updateVariable('h', this.value)">
+        </div>
+      </div>
+
+      <div class="formula-display">
+        Current Velocity = <span id="velocityValue">0.21</span>
+        (V = C × D × H = <span id="formulaBreakdown">0.7 × 0.5 × 0.6</span>)
+      </div>
+
+      <div class="visualization" id="contextFlow">
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #e3f2fd; border-color: #1976d2;"></div>
+            <span>Human Participants</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #f3e5f5; border-color: #7b1fa2;"></div>
+            <span>AI Systems</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #e8f5e9; border-color: #388e3c;"></div>
+            <span>Context Providers</span>
+          </div>
+        </div>
       </div>
 
       <h2>The Human Element</h2>
@@ -326,5 +543,300 @@
       <p>This holistic approach to organizational context systems creates a multiplier effect, where improvements in any one system ripple through the entire network, creating compound returns in organizational velocity.</p>
 
     </div>
+
+    <script>
+      class NetworkVisualization {
+        constructor() {
+          this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          this.svg.setAttribute("width", "100%");
+          this.svg.setAttribute("height", "100%");
+          
+          this.nodes = [];
+          this.links = [];
+          this.pulses = [];
+          this.renderRequested = false;
+          
+          this.nodeTypes = ['human', 'ai', 'context'];
+          this.nodeLabels = {
+            human: ['Team Member', 'Manager', 'Expert', 'User'],
+            ai: ['Assistant', 'Agent', 'Analyzer', 'Bot'],
+            context: ['Knowledge Base', 'Documentation', 'External API', 'Data Source']
+          };
+          
+          const container = document.getElementById("contextFlow");
+          container.style.position = 'relative';
+          container.appendChild(this.svg);
+          
+          this.containerRect = container.getBoundingClientRect();
+          
+          this.initializeNetwork();
+          this.render();
+          this.variables = {
+            c: 0.7,
+            d: 0.5,
+            h: 0.6
+          };
+
+          window.addEventListener('resize', () => {
+            this.containerRect = container.getBoundingClientRect();
+            this.handleResize();
+          });
+        }
+
+        handleResize() {
+          this.nodes.forEach(node => {
+            node.x = Math.min(Math.max(node.x, node.radius), this.containerRect.width - node.radius);
+            node.y = Math.min(Math.max(node.y, node.radius), this.containerRect.height - node.radius);
+          });
+          this.requestRender();
+        }
+
+        requestRender() {
+          if (!this.renderRequested) {
+            this.renderRequested = true;
+            requestAnimationFrame(() => {
+              this.render();
+              this.renderRequested = false;
+            });
+          }
+        }
+
+        initializeNetwork() {
+          // Add nodes of each type
+          this.nodeTypes.forEach(type => {
+            for (let i = 0; i < 2; i++) {
+              this.addNode(type);
+            }
+          });
+          this.createLinks();
+        }
+
+        addNode(type = this.nodeTypes[Math.floor(Math.random() * this.nodeTypes.length)]) {
+          const radius = 20;
+          
+          this.nodes.push({
+            x: Math.random() * (this.containerRect.width - 2 * radius) + radius,
+            y: Math.random() * (this.containerRect.height - 2 * radius) + radius,
+            radius: radius,
+            type: type,
+            label: this.nodeLabels[type][Math.floor(Math.random() * this.nodeLabels[type].length)]
+          });
+          
+          this.createLinks();
+          this.requestRender();
+        }
+
+        createLinks() {
+          // Create a DocumentFragment for batch DOM updates
+          const fragment = document.createDocumentFragment();
+          this.links = [];
+          
+          for (let i = 0; i < this.nodes.length; i++) {
+            for (let j = i + 1; j < this.nodes.length; j++) {
+              // Higher probability for meaningful connections
+              let probability = 0.3;
+              const sourceType = this.nodes[i].type;
+              const targetType = this.nodes[j].type;
+              
+              // Increase probability for human-AI and human-context connections
+              if ((sourceType === 'human' && (targetType === 'ai' || targetType === 'context')) ||
+                  (targetType === 'human' && (sourceType === 'ai' || sourceType === 'context'))) {
+                probability = 0.7;
+              }
+              
+              if (Math.random() < probability) {
+                this.links.push({
+                  source: i,
+                  target: j,
+                  type: probability === 0.7 ? 'primary' : 'secondary'
+                });
+              }
+            }
+          }
+          
+          return fragment;
+        }
+
+        createPulse(sourceIndex, depth = 0) {
+          // Limit propagation depth to prevent exponential growth
+          const MAX_DEPTH = 3;
+          const MAX_ACTIVE_PULSES = 12;
+          
+          if (depth >= MAX_DEPTH || this.pulses.length >= MAX_ACTIVE_PULSES) {
+            return;
+          }
+          
+          const source = this.nodes[sourceIndex];
+          const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          
+          // Set all attributes at once for better performance
+          const attrs = {
+            cx: source.x,
+            cy: source.y,
+            r: source.radius,
+            class: "context-pulse"
+          };
+          
+          Object.entries(attrs).forEach(([key, value]) => {
+            pulse.setAttribute(key, value);
+          });
+          
+          this.svg.appendChild(pulse);
+          this.pulses.push(pulse);
+          
+          const pulseSize = source.radius * (2 + this.variables.c * 2);
+          const duration = 1000 / (this.variables.d + 0.2);
+          
+          // Adjust pulse color based on node type
+          const colors = {
+            human: '#1976d2',
+            ai: '#7b1fa2',
+            context: '#388e3c'
+          };
+          pulse.style.stroke = colors[source.type];
+          
+          pulse.animate([
+            { opacity: 0.8 * this.variables.h, r: source.radius },
+            { opacity: 0, r: pulseSize }
+          ], {
+            duration: duration,
+            easing: 'ease-out'
+          }).onfinish = () => {
+            pulse.remove();
+            this.pulses = this.pulses.filter(p => p !== pulse);
+          };
+
+          // Get connected nodes and shuffle them to randomize propagation
+          const connectedLinks = this.links
+            .filter(link => link.source === sourceIndex || link.target === sourceIndex);
+          
+          // Limit number of propagations per node
+          const MAX_PROPAGATIONS = 2;
+          const shuffledLinks = connectedLinks
+            .sort(() => Math.random() - 0.5)
+            .slice(0, MAX_PROPAGATIONS);
+
+          shuffledLinks.forEach(link => {
+            if (Math.random() < this.variables.d) {
+              setTimeout(() => {
+                const nextNode = link.source === sourceIndex ? link.target : link.source;
+                this.createPulse(nextNode, depth + 1);
+              }, duration * 0.2);
+            }
+          });
+        }
+
+        render() {
+          const fragment = document.createDocumentFragment();
+          
+          // Clear existing content efficiently
+          while (this.svg.firstChild) {
+            this.svg.removeChild(this.svg.firstChild);
+          }
+          
+          // Draw links
+          this.links.forEach(link => {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", this.nodes[link.source].x);
+            line.setAttribute("y1", this.nodes[link.source].y);
+            line.setAttribute("x2", this.nodes[link.target].x);
+            line.setAttribute("y2", this.nodes[link.target].y);
+            line.setAttribute("class", `link link-${link.type}`);
+            fragment.appendChild(line);
+          });
+          
+          // Draw nodes and labels
+          this.nodes.forEach((node, index) => {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", node.x);
+            circle.setAttribute("cy", node.y);
+            circle.setAttribute("r", node.radius);
+            circle.setAttribute("class", `node node-${node.type}`);
+            circle.onclick = () => this.createPulse(index);
+            
+            const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            label.setAttribute("x", node.x);
+            label.setAttribute("y", node.y + node.radius + 15);
+            label.setAttribute("class", "node-label");
+            label.textContent = node.label;
+            
+            group.appendChild(circle);
+            group.appendChild(label);
+            fragment.appendChild(group);
+          });
+          
+          // Batch update DOM
+          this.svg.appendChild(fragment);
+        }
+
+        updateVariables(type, value) {
+          this.variables[type] = parseFloat(value);
+          this.updateVelocityDisplay();
+        }
+
+        updateVelocityDisplay() {
+          const velocity = (this.variables.c * this.variables.d * this.variables.h).toFixed(2);
+          document.getElementById('velocityValue').textContent = velocity;
+          document.getElementById('formulaBreakdown').textContent = 
+            `${this.variables.c} × ${this.variables.d} × ${this.variables.h}`;
+        }
+      }
+
+      let visualization;
+      
+      // Initialize only when the DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVisualization);
+      } else {
+        initVisualization();
+      }
+
+      function initVisualization() {
+        visualization = new NetworkVisualization();
+      }
+
+      // Throttle the addNode function
+      const addNode = (() => {
+        let timeout;
+        return () => {
+          if (!timeout) {
+            timeout = setTimeout(() => {
+              visualization.addNode();
+              timeout = null;
+            }, 100);
+          }
+        };
+      })();
+
+      // Throttle the resetVisualization function
+      const resetVisualization = (() => {
+        let timeout;
+        return () => {
+          if (!timeout) {
+            timeout = setTimeout(() => {
+              document.getElementById("contextFlow").innerHTML = '';
+              visualization = new NetworkVisualization();
+              timeout = null;
+            }, 100);
+          }
+        };
+      })();
+
+      // Throttle the updateVariable function
+      const updateVariable = (() => {
+        let timeout;
+        return (type, value) => {
+          if (!timeout) {
+            timeout = setTimeout(() => {
+              document.getElementById(`${type}Value`).textContent = value;
+              visualization.updateVariables(type, value);
+              timeout = null;
+            }, 50);
+          }
+        };
+      })();
+    </script>
   </body>
 </html>
